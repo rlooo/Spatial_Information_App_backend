@@ -19,7 +19,12 @@ def new_post(request):
         floor = request.POST.get('floor')
         deposit = request.POST.get('deposit')
         price = request.POST.get('price')
-
+        discussion = request.POST.get('discussion')
+        client = request.POST.get('client')
+        sort = request.POST.get('sort')
+        count = request.POST.get('count')
+        range = request.POST.get('range')
+        print(discussion)
         # if Account.objects.filter(uid=uid).exists():
         #     user = Account.objects.get(uid=uid)
 
@@ -31,6 +36,11 @@ def new_post(request):
             floor=int(floor),
             deposit=int(deposit),
             price=int(price),
+            discussion=int(discussion),
+            client = int(client),
+            sort = int(sort),
+            count =int(count),
+            range = int(range),
         )
 
         new_article.save()

@@ -8,6 +8,11 @@ from user.models import Account
 
 
 class Board(models.Model):
+    DISCUSSION_CHOICES = [
+        (1, '보증금/월세 협의 불가능'),
+        (2, '보증금/월세 협의 가능'),
+    ]
+
     CLIENT_CHOICES = [
         (1, '건물주'),
         (2, '가게주'),
@@ -17,6 +22,12 @@ class Board(models.Model):
         (1, '전체'),
         (2, '월세'),
         (3, '전세'),
+    ]
+
+    COUNT_CHOICES = [
+        (1, '1개'),
+        (2, '2개'),
+        (3, '3개+')
     ]
 
     RANGE_CHOICES = [
@@ -32,10 +43,10 @@ class Board(models.Model):
     floor = models.IntegerField()
     deposit = models.IntegerField()
     price = models.IntegerField()
-    discussion = models.CharField(max_length=50) # 협의 가능 여부
+    discussion = models.PositiveSmallIntegerField(choices=DISCUSSION_CHOICES, null=True) # 협의 가능 여부
     client = models.PositiveSmallIntegerField(choices=CLIENT_CHOICES, null=True) # 의뢰인
     sort = models.PositiveSmallIntegerField(choices=SORT_CHOICES, null=True) # 거래 종류
-    count = models.IntegerField(null=True) # 공간 개수
+    count = models.PositiveSmallIntegerField(choices=COUNT_CHOICES, null=True) # 공간 개수
     range = models.PositiveSmallIntegerField(choices=RANGE_CHOICES, null=True) # 공간 사용 범위
     # facility = ArrayField(models.CharField(max_length=20), blank=True, null=True, default=list)  # 시설 정보 # PostgreSQL
     created_at = models.DateTimeField(auto_now_add=True)
