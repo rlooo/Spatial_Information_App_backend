@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'board',
     'user',
     'django_firebase_custom_auth',
+    'multiselectfield',
 ]
 
 # SOCIAL_OUTH_CONFIG = {

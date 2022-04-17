@@ -10,8 +10,10 @@ urlpatterns = [
     # Example: /user/signin/kakao/token/
     path('signin/kakao/token/', KakaoSignInCallBackView.as_view()),
 
+    # Example: /user/signin/kakao/customtoken/
+    path('signin/kakao/customtoken/', CreateFirebaseCustomTokenView.as_view()),
 
     path('logout/kakao/', KakaoLogoutView.as_view()),
-    path('signin/kakao/customtoken/', CreateFirebaseCustomTokenView.as_view()),
+
     # path('signin2/kakao/', KakaoSignInView2.as_view()),
 ]

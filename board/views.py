@@ -5,11 +5,10 @@ import json
 
 from board.models import Board
 
-# Create your views here.
-#새로운 게시글 작성하는 함수
 from user.models import Account
 
-
+# Create your views here.
+#새로운 게시글 작성하는 함수
 def new_post(request):
     if request.method == 'POST':
         uid = request.POST.get('uid')
@@ -24,7 +23,12 @@ def new_post(request):
         sort = request.POST.get('sort')
         count = request.POST.get('count')
         range = request.POST.get('range')
-        print(discussion)
+        facilities = request.POST.get('facilities')
+
+        facilities=facilities.replace('[','').replace(']','')
+        facilities = facilities.split(',')
+        facilities = [int(i) for i in facilities]
+
         # if Account.objects.filter(uid=uid).exists():
         #     user = Account.objects.get(uid=uid)
 
@@ -37,10 +41,11 @@ def new_post(request):
             deposit=int(deposit),
             price=int(price),
             discussion=int(discussion),
-            client = int(client),
-            sort = int(sort),
-            count =int(count),
-            range = int(range),
+            client=int(client),
+            sort=int(sort),
+            count=int(count),
+            range=int(range),
+            facility=facilities,
         )
 
         new_article.save()

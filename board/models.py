@@ -3,6 +3,7 @@ from django.db import models
 
 # Create your models here.
 from django.utils import timezone
+from multiselectfield import MultiSelectField
 
 from user.models import Account
 
@@ -35,6 +36,20 @@ class Board(models.Model):
         (2, '상가, 점포와 사무실 둘 다 사용 가능해요'),
     ]
 
+    FACILITY_CHOICES = [
+        (1, '즉시 입주 가능'),
+        (2, '내부 화장실'),
+        (3, '남녀 화장실 구분'),
+        (4, '개별난방'),
+        (5, '엘리베이터'),
+        (6, '최근 리모델링'),
+        (7, '주차대수'),
+        (8, '테라스'),
+        (9, '루프탑'),
+        (10, '샵인샵'),
+        (11, '24시간 개방')
+    ]
+
     author = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=50)
     contact = models.CharField(max_length=50)
@@ -48,7 +63,7 @@ class Board(models.Model):
     sort = models.PositiveSmallIntegerField(choices=SORT_CHOICES, null=True) # 거래 종류
     count = models.PositiveSmallIntegerField(choices=COUNT_CHOICES, null=True) # 공간 개수
     range = models.PositiveSmallIntegerField(choices=RANGE_CHOICES, null=True) # 공간 사용 범위
-    # facility = ArrayField(models.CharField(max_length=20), blank=True, null=True, default=list)  # 시설 정보 # PostgreSQL
+    facility = MultiSelectField(choices=FACILITY_CHOICES, null=True) # 시설 정보
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
