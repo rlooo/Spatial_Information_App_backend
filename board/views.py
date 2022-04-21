@@ -1,15 +1,15 @@
-from django.http import HttpResponse
-from django.shortcuts import render
+from django.http import HttpResponse, JsonResponse
+from django.shortcuts import render, get_object_or_404
 
 import json
 
-from board.models import Board
+from board.models import PutOutBoard, LookForBoard, Address
 
 from user.models import Account
 
-# Create your views here.
-#새로운 게시글 작성하는 함수
-def new_post(request):
+
+#새로운 공간내놓기 게시물 작성하는 함수
+def new_putout(request):
     if request.method == 'POST':
         uid = request.POST.get('uid')
         name = request.POST.get('name')
@@ -24,6 +24,24 @@ def new_post(request):
         count = request.POST.get('count')
         range = request.POST.get('range')
         facilities = request.POST.get('facilities')
+        images = request.POST.get('images')
+
+        postCode = request.POST.get('postCode')
+        address = request.POST.get('address')
+        latitude = request.POST.get('latitude')
+        longitude = request.POST.get('longitude')
+        kakaoLatitude = request.POST.get('kakaoLatitude')
+        kakaoLongitude = request.POST.get('kakaoLongitude')
+
+
+        address = Address.objects.create(
+            postCode=postCode,
+            address=address,
+            latitude=latitude,
+            longitude=longitude,
+            kakaoLatitude= kakaoLatitude,
+            kakaoLongitude=kakaoLongitude,
+        )
 
         facilities=facilities.replace('[','').replace(']','')
         facilities = facilities.split(',')
@@ -32,10 +50,11 @@ def new_post(request):
         # if Account.objects.filter(uid=uid).exists():
         #     user = Account.objects.get(uid=uid)
 
-        new_article = Board.objects.create(
+        new_article = PutOutBoard.objects.create(
             # author=user,
             name=name,
             contact=contact,
+            address=address,
             area=int(area),
             floor=int(floor),
             deposit=int(deposit),
@@ -46,35 +65,54 @@ def new_post(request):
             count=int(count),
             range=int(range),
             facility=facilities,
+            images=images
         )
 
         new_article.save()
 
         return HttpResponse(status=200)
 
+#새로운 공간구하기 게시물 작성하는 함수
+def new_lookfor(request):
+    if request.method == 'POST':
+        uid = request.POST.get('uid')
+        name = request.POST.get('name')
+        contact = request.POST.get('contact')
+        business = request.POST.get('business')
+        area = request.POST.get('area')
+        deposit = request.POST.get('deposit')
+        price = request.POST.get('price')
+        discussion = request.POST.get('discussion')
 
-# # 게시글 삭제 기능
-# #@id_auth
-# def post_delete(request, pk):
-#     # data = json.loads(request.body)
-#     # login_session = data['login_session']
-#     board = get_object_or_404(Board, id=pk)
-#     # if board.author.social_login_id == login_session:
-#     board.delete()
-#     return HttpResponse(status=200)
-#     # else:
-#     #     return JsonResponse({'MESSAGE': 'INVALID_USER'}, status=401)
-#
-#
+
+        # if Account.objects.filter(uid=uid).exists():
+        #     user = Account.objects.get(uid=uid)
+
+        new_article = LookForBoard.objects.create(
+            # author=user,
+            name=name,
+            contact=contact,
+            business=business,
+            area=int(area),
+            deposit=int(deposit),
+            price=int(price),
+            discussion=int(discussion),
+        )
+
+        new_article.save()
+
+        return HttpResponse(status=200)
+
+# 게시글 삭제 기능
+def putout_delete(request, pk):
+    putout = get_object_or_404(PutOutBoard, id=pk)
+    putout.delete()
+    return HttpResponse(status=200)
+
+
 # # 게시글 수정 기능
-# #@id_auth
-# def post_modify(request, pk):
-#     #data = json.loads(request.body)
-#     # login_session = data['login_session']
+# def putout_modify(request, pk):
 #     board = get_object_or_404(Board, id=pk)
-#
-#     # if board.author.social_login_id != login_session:
-#     #     return JsonResponse({'MESSAGE': 'INVALID_USER'}, status=401)
 #
 #     if request.method == 'POST':
 #         data = json.loads(request.body)
@@ -93,20 +131,27 @@ def new_post(request):
 #         board.save()
 #
 #         return HttpResponse(status=200)
-#
-# # 게시물 상세 조회하는 함수
-# def board_detail(request, pk):
-#     # data = json.loads(request.body)
-#     # login_session = data['login_session']
-#
-#     # 게시글(Post) 중 pk(primary_key)를 이용해 하나의 게시글(post)를 검색
-#     board = get_object_or_404(Board, id=pk)
-#
-#     # # 글의 작성자인지 판별
-#     # if board.author.social_login_id == login_session:
-#     #     author_vaild = True
-#     # else:
-#     #     author_vaild = False
-#
-#     return HttpResponse(json.dumps(board, indent=4, sort_keys=True, default=str),
-#                             content_type="application/json", status=200)
+
+# 게시물 상세 조회하는 함수
+def putout_detail(request, pk):
+    # 게시글(Post) 중 pk(primary_key)를 이용해 하나의 게시글(post)를 검색
+    board = PutOutBoard.objects.get(id=pk)
+    return JsonResponse({
+        'id': board.id,
+        'author':board.author,
+        'name': board.name,
+        'contact': board.contact,
+        'address_latitude':board.address.kakaoLatitude,
+        'address_longitude': board.address.kakaoLongitude,
+        'area':board.area,
+        'floor':board.floor,
+        'deposit':board.deposit,
+        'price':board.price,
+        'discussion':board.get_discussion_display(),
+        'client':board.get_client_display(),
+        'sort':board.get_sort_display(),
+        'count':board.get_count_display(),
+        'range':board.get_range_display(),
+        'facility':board.get_facility_display(),
+        'created_at':board.created_at
+    }, json_dumps_params={'ensure_ascii': False}, status=200)

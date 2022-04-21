@@ -1,5 +1,4 @@
 from django.urls import path
-from board import views
 from board.views import *
 
 # 이미지 업로드
@@ -10,16 +9,19 @@ app_name = 'board'
 urlpatterns = [
 
     # Example: /board/new_post/put_out/
-    path('new_post/put_out/', new_post, name='new_post'),
-    #
-    # # Example: /board/1/detail/
-    # path('<int:pk>/detail/', views.board_detail, name="post_detail"),
+    path('new_post/put_out/', new_putout, name='put_out'),
+
+    # Example: /board/new_post/look_for/
+    path('new_post/look_for/', new_lookfor, name='look_for'),
+
+    # Example: /board/detail/1
+    path('detail/<int:pk>/', putout_detail, name="putout_detail"),
     #
     # # Example: /board/1/modify/
     # path('<int:pk>/modify/', views.post_modify, name='post_modify'),
     #
-    # # Example: /board/1/delete/
-    # path('<int:pk>/delete/', views.post_delete, name='post_delete'),
+    # Example: /board/delete/1
+    path('delete/<int:pk>', putout_delete, name='putout_delete'),
 
 ]
 # 이미지 URL 설정

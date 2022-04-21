@@ -1,4 +1,3 @@
-
 from django.db import models
 
 # Create your models here.
@@ -8,7 +7,7 @@ from multiselectfield import MultiSelectField
 from user.models import Account
 
 
-class Board(models.Model):
+class PutOutBoard(models.Model):
     DISCUSSION_CHOICES = [
         (1, '보증금/월세 협의 불가능'),
         (2, '보증금/월세 협의 가능'),
@@ -58,21 +57,38 @@ class Board(models.Model):
     floor = models.IntegerField()
     deposit = models.IntegerField()
     price = models.IntegerField()
-    discussion = models.PositiveSmallIntegerField(choices=DISCUSSION_CHOICES, null=True) # 협의 가능 여부
-    client = models.PositiveSmallIntegerField(choices=CLIENT_CHOICES, null=True) # 의뢰인
-    sort = models.PositiveSmallIntegerField(choices=SORT_CHOICES, null=True) # 거래 종류
-    count = models.PositiveSmallIntegerField(choices=COUNT_CHOICES, null=True) # 공간 개수
-    range = models.PositiveSmallIntegerField(choices=RANGE_CHOICES, null=True) # 공간 사용 범위
-    facility = MultiSelectField(choices=FACILITY_CHOICES, null=True) # 시설 정보
+    discussion = models.PositiveSmallIntegerField(choices=DISCUSSION_CHOICES, null=True)  # 협의 가능 여부
+    client = models.PositiveSmallIntegerField(choices=CLIENT_CHOICES, null=True)  # 의뢰인
+    sort = models.PositiveSmallIntegerField(choices=SORT_CHOICES, null=True)  # 거래 종류
+    count = models.PositiveSmallIntegerField(choices=COUNT_CHOICES, null=True)  # 공간 개수
+    range = models.PositiveSmallIntegerField(choices=RANGE_CHOICES, null=True)  # 공간 사용 범위
+    facility = MultiSelectField(choices=FACILITY_CHOICES, null=True)  # 시설 정보
+    images = models.CharField(max_length=2000, null=True, blank=True) #건물 이미지
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        db_table = "board"
+        db_table = "putout"
 
-    # def __str__(self):
-    #     Board.objects.filter(date__lte=timezone.now())\
-    #                 .order_by('created_at')
-    #     return self.title
+class LookForBoard(models.Model):
+    DISCUSSION_CHOICES = [
+        (1, '보증금/월세 협의 불가능'),
+        (2, '보증금/월세 협의 가능'),
+    ]
+
+    author = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
+    name = models.CharField(max_length=50)
+    contact = models.CharField(max_length=50)
+    address = models.ForeignKey('Address', null=True, blank=True, on_delete=models.SET_NULL)
+    business = models.CharField(max_length=50)
+    area = models.IntegerField()
+    deposit = models.IntegerField()
+    price = models.IntegerField()
+    discussion = models.PositiveSmallIntegerField(choices=DISCUSSION_CHOICES, null=True)  # 협의 가능 여부
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        db_table = "lookfor"
+
 
 class Address(models.Model):
     postCode = models.CharField(max_length=50)
@@ -84,3 +100,4 @@ class Address(models.Model):
 
     class Meta:
         db_table = "addresses"
+

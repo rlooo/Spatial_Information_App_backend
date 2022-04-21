@@ -23,17 +23,18 @@ from .models import Account
 @method_decorator(csrf_exempt, name='dispatch')
 class KakaoSignInView(View):
     def get(self, request):
+        redirectUri = request.GET.get('redirect-uri')
+
         app_key = '7f44810be24159eb8b2748926096d3d8'
         redirect_uri = 'http://10.0.2.2:8000/user/signin/kakao/token'
         kakao_auth_api = 'https://kauth.kakao.com/oauth/authorize?response_type=code'
-        # return redirect(
-        #     f'{kakao_auth_api}&client_id={app_key}&redirect_uri={redirect_uri}'
-        # )
-        params = {'client_id': app_key, 'redirect_uri': redirect_uri}
-        kakao_response = requests.post(kakao_auth_api, params=params)
-        print(kakao_response)
+        return redirect(
+            f'{kakao_auth_api}&client_id={app_key}&redirect_uri={redirect_uri}'
+        )
+        # params = {'client_id': app_key, 'redirect_uri': redirect_uri}
+        # kakao_response = requests.post(kakao_auth_api, params=params)
+        # print(kakao_response)
 
-        # requests.post('http://10.0.2.2:8000/webauthcallback://success?$', params=kakao_response)
 
 @method_decorator(csrf_exempt, name='dispatch')
 class KakaoSignInCallBackView(View):
@@ -70,30 +71,32 @@ class KakaoSignInCallBackView(View):
             )
             user.save()
 
-        return JsonResponse({
-            'id': user.uid,
-            'email': user.email,
-            'nickname': user.nickname,
-            'access_token': access_token,
-            'refresh_token' : refresh_token,
-        }, status=200)
+        # return JsonResponse({
+        #     'id': user.uid,
+        #     'email': user.email,
+        #     'nickname': user.nickname,
+        #     'access_token': access_token,
+        #     'refresh_token' : refresh_token,
+        # }, status=200)
 
-        # # 1. 사용자 정보로 파이어 베이스 유저정보 update, 사용자 정보가 있다면 userRecord에 유저 정보가 담긴다.
-        # ref = db.reference(user.uid)
-        # if ref is not None:
-        #     ref.update({'email': user.email, 'nickname': user.nickname})
-        # else:
-        #     ref.update({'uid': user.uid, 'email': user.email, 'emailVerified': False, 'nickname': user.nickname})  # 해당 변수가 없으면 생성한다.
-        #
-        # # 2. 전달받은 user 정보로 CustomToken을 발행한다.
-        # custom_token = auth.create_custom_token(user.uid)
-        # print(custom_token)
-        #
-        # # return JsonResponse({
-        # #     'custom_token': str(custom_token),
-        # # }, status=200)
-        # # return HttpResponseRedirect(reverse('webauthcallback://success?customToken='+str(custom_token)));
+        # 1. 사용자 정보로 파이어 베이스 유저정보 update, 사용자 정보가 있다면 userRecord에 유저 정보가 담긴다.
+        ref = db.reference(user.uid)
+        if ref is not None:
+            ref.update({'email': user.email, 'nickname': user.nickname})
+        else:
+            ref.update({'uid': user.uid, 'email': user.email, 'emailVerified': False, 'nickname': user.nickname})  # 해당 변수가 없으면 생성한다.
+
+        # 2. 전달받은 user 정보로 CustomToken을 발행한다.
+        custom_token = auth.create_custom_token(user.uid)
+        print(custom_token)
+
+        # return JsonResponse({
+        #     'custom_token': str(custom_token),
+        # }, status=200)
+        # return HttpResponseRedirect(reverse('webauthcallback://success?customToken='+str(custom_token)));
         # return redirect(reverse('webauthcallback://success?customToken='+str(custom_token)));
+        params = {'custom_token': custom_token}
+        requests.post('webauthcallback://success?', params=params)
 
 
 @method_decorator(csrf_exempt, name='dispatch')
