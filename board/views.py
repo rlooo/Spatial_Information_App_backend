@@ -3,7 +3,10 @@ from django.shortcuts import render, get_object_or_404
 
 import json
 
-from board.models import PutOutBoard, LookForBoard, Address
+from rest_framework.generics import ListAPIView
+
+from board.models import PutOutBoard, LookForBoard
+from board.serializer import PutOutListSerializer
 
 from user.models import Account
 
@@ -33,16 +36,6 @@ def new_putout(request):
         kakaoLatitude = request.POST.get('kakaoLatitude')
         kakaoLongitude = request.POST.get('kakaoLongitude')
 
-
-        address = Address.objects.create(
-            postCode=postCode,
-            address=address,
-            latitude=latitude,
-            longitude=longitude,
-            kakaoLatitude= kakaoLatitude,
-            kakaoLongitude=kakaoLongitude,
-        )
-
         facilities=facilities.replace('[','').replace(']','')
         facilities = facilities.split(',')
         facilities = [int(i) for i in facilities]
@@ -55,6 +48,8 @@ def new_putout(request):
             name=name,
             contact=contact,
             address=address,
+            kakaoLatitude=kakaoLatitude,
+            kakaoLongitude=kakaoLongitude,
             area=int(area),
             floor=int(floor),
             deposit=int(deposit),
@@ -141,8 +136,9 @@ def putout_detail(request, pk):
         'author':board.author,
         'name': board.name,
         'contact': board.contact,
-        'address_latitude':board.address.kakaoLatitude,
-        'address_longitude': board.address.kakaoLongitude,
+        'address':board.address,
+        'kakaoLatitude':board.kakaoLatitude,
+        'kakaoLongitude': board.kakaoLongitude,
         'area':board.area,
         'floor':board.floor,
         'deposit':board.deposit,
@@ -155,3 +151,21 @@ def putout_detail(request, pk):
         'facility':board.get_facility_display(),
         'created_at':board.created_at
     }, json_dumps_params={'ensure_ascii': False}, status=200)
+
+# 모든 게시글들을 불러오기
+class PutOutListView(ListAPIView):
+    queryset = PutOutBoard.objects.all()
+    serializer_class = PutOutListSerializer
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(queryset, many=True)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        return HttpResponse(json.dumps(serializer.data, ensure_ascii=False, indent='\t'), status=200)
+

@@ -9,8 +9,8 @@ from user.models import Account
 
 class PutOutBoard(models.Model):
     DISCUSSION_CHOICES = [
-        (1, '보증금/월세 협의 불가능'),
-        (2, '보증금/월세 협의 가능'),
+        (1, '보증금 / 월세 협의 불가능'),
+        (2, '보증금 / 월세 협의 가능'),
     ]
 
     CLIENT_CHOICES = [
@@ -52,11 +52,13 @@ class PutOutBoard(models.Model):
     author = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=50)
     contact = models.CharField(max_length=50)
-    address = models.ForeignKey('Address', null=True, blank=True, on_delete=models.SET_NULL)
+    address = models.CharField(max_length=50, null=True)
+    kakaoLatitude = models.CharField(max_length=50, null=True, blank=True)
+    kakaoLongitude = models.CharField(max_length=50, null=True, blank=True)
     area = models.IntegerField()
     floor = models.IntegerField()
-    deposit = models.IntegerField()
-    price = models.IntegerField()
+    deposit = models.IntegerField() # 보증금
+    price = models.IntegerField() # 월세
     discussion = models.PositiveSmallIntegerField(choices=DISCUSSION_CHOICES, null=True)  # 협의 가능 여부
     client = models.PositiveSmallIntegerField(choices=CLIENT_CHOICES, null=True)  # 의뢰인
     sort = models.PositiveSmallIntegerField(choices=SORT_CHOICES, null=True)  # 거래 종류
@@ -69,16 +71,16 @@ class PutOutBoard(models.Model):
     class Meta:
         db_table = "putout"
 
+
 class LookForBoard(models.Model):
     DISCUSSION_CHOICES = [
-        (1, '보증금/월세 협의 불가능'),
-        (2, '보증금/월세 협의 가능'),
+        (1, '보증금 / 월세 협의 불가능'),
+        (2, '보증금 / 월세 협의 가능'),
     ]
 
     author = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=50)
     contact = models.CharField(max_length=50)
-    address = models.ForeignKey('Address', null=True, blank=True, on_delete=models.SET_NULL)
     business = models.CharField(max_length=50)
     area = models.IntegerField()
     deposit = models.IntegerField()
@@ -90,14 +92,14 @@ class LookForBoard(models.Model):
         db_table = "lookfor"
 
 
-class Address(models.Model):
-    postCode = models.CharField(max_length=50)
-    address = models.CharField(max_length=50)
-    latitude = models.CharField(max_length=50)
-    longitude = models.CharField(max_length=50)
-    kakaoLatitude = models.CharField(max_length=50)
-    kakaoLongitude = models.CharField(max_length=50)
-
-    class Meta:
-        db_table = "addresses"
+# class Address(models.Model):
+#     postCode = models.CharField(max_length=50)
+#     address = models.CharField(max_length=50)
+#     latitude = models.CharField(max_length=50)
+#     longitude = models.CharField(max_length=50)
+#     kakaoLatitude = models.CharField(max_length=50)
+#     kakaoLongitude = models.CharField(max_length=50)
+#
+#     class Meta:
+#         db_table = "addresses"
 
