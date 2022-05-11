@@ -1,7 +1,9 @@
 from django.contrib import admin
 
 # Register your models here.
-from board.models import PutOutBoard, LookForBoard
+from board.models import PutOut, LookFor, GisBuildingService, ApplySpace
 
-admin.site.register(PutOutBoard)
-admin.site.register(LookForBoard)
+admin.site.register(PutOut)
+admin.site.register(LookFor)
+admin.site.register(ApplySpace)
+admin.site.register(GisBuildingService)

@@ -26,6 +26,12 @@ urlpatterns = [
     # Example: /board/list/
     path('list/', PutOutListView.as_view(), name='putout_list'),
 
+    # Example: /board/opendata/
+    path('opendata/', openAPIData),
+
+    #Example: /board/new_post/applyspace/
+    path('new_post/applyspace/', applySpace),
+
 ]
 # 이미지 URL 설정
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

@@ -7,7 +7,7 @@ from multiselectfield import MultiSelectField
 from user.models import Account
 
 
-class PutOutBoard(models.Model):
+class PutOut(models.Model):
     DISCUSSION_CHOICES = [
         (1, '보증금 / 월세 협의 불가능'),
         (2, '보증금 / 월세 협의 가능'),
@@ -70,9 +70,13 @@ class PutOutBoard(models.Model):
 
     class Meta:
         db_table = "putout"
+        verbose_name_plural = "공간 내놓기"
+
+    def __str__(self):
+        return f' {self.address} [{self.name}]'
 
 
-class LookForBoard(models.Model):
+class LookFor(models.Model):
     DISCUSSION_CHOICES = [
         (1, '보증금 / 월세 협의 불가능'),
         (2, '보증금 / 월세 협의 가능'),
@@ -90,6 +94,37 @@ class LookForBoard(models.Model):
 
     class Meta:
         db_table = "lookfor"
+        verbose_name_plural = "공간 구하기"
+
+    def __str__(self):
+        return f' 신청인: {self.name} '
+
+
+class ApplySpace(models.Model):
+    DISCUSSION_CHOICES = [
+        (1, '보증금 / 월세 협의 불가능'),
+        (2, '보증금 / 월세 협의 가능'),
+    ]
+
+    author = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
+    building = models.ForeignKey(PutOut, on_delete=models.CASCADE, blank=True, null=True)
+    name = models.CharField(max_length=50)
+    contact = models.CharField(max_length=50)
+    business = models.CharField(max_length=50)
+    deposit = models.IntegerField()
+    price = models.IntegerField()
+    discussion = models.PositiveSmallIntegerField(choices=DISCUSSION_CHOICES, null=True)  # 협의 가능 여부
+    created_at = models.DateTimeField(auto_now_add=True)
+
+
+    def __str__(self):
+        return f'{self.building} '
+
+    class Meta:
+        db_table = "applySpace"
+        verbose_name_plural = "공간 신청하기"
+
+
 
 
 # class Address(models.Model):
@@ -102,4 +137,16 @@ class LookForBoard(models.Model):
 #
 #     class Meta:
 #         db_table = "addresses"
+
+
+class GisBuildingService(models.Model):
+    BULD_PLOT_AR = models.FloatField()
+    BULD_BILDNG_AR = models.FloatField()
+    MEASRMT_RT = models.FloatField()
+    BTL_RT = models.FloatField()
+    STRCT_CODE = models.IntegerField()
+    MAIN_PRPOS_CODE = models.IntegerField()
+    GROUND_FLOOR_CO = models.IntegerField()
+    UNDGRND_FLOOR_CO = models.IntegerField()
+    TOT_PARKNG_CO = models.IntegerField()
 
