@@ -29,8 +29,14 @@ urlpatterns = [
     # Example: /board/opendata/
     path('opendata/', openAPIData),
 
-    #Example: /board/new_post/applyspace/
+    # Example: /board/new_post/applyspace/
     path('new_post/applyspace/', applySpace),
+
+    # Example: /board/convertPNU/
+    path('convertPNU/', convertPNU),
+
+# Example: /board/opendata2/
+    path('opendata2/', openAPIData2),
 
 ]
 # 이미지 URL 설정

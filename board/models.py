@@ -6,6 +6,17 @@ from multiselectfield import MultiSelectField
 
 from user.models import Account
 
+class BldRgstService(models.Model):
+    platArea = models.FloatField()  # 대지면적
+    archArea = models.FloatField()  # 건축면적
+    bcRat = models.FloatField() # 건폐울
+    vlRat = models.FloatField() # 용적률Q
+    grndFlrCnt = models.IntegerField()  # 지상층수
+    ugrndFlrCnt = models.IntegerField() # 지하층수
+    mainPurpsCdNm = models.CharField(max_length=50)  # 주용도
+    etcPurps = models.CharField(max_length=50, null=True) # 기타용도
+    strctCdNm = models.CharField(max_length=50) # 구조
+    totPkngCnt = models.IntegerField()   # 총주차수
 
 class PutOut(models.Model):
     DISCUSSION_CHOICES = [
@@ -52,7 +63,7 @@ class PutOut(models.Model):
     author = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=50)
     contact = models.CharField(max_length=50)
-    address = models.CharField(max_length=50, null=True)
+    address = models.CharField(max_length=50, null=True) # 도로명 주소
     kakaoLatitude = models.CharField(max_length=50, null=True, blank=True)
     kakaoLongitude = models.CharField(max_length=50, null=True, blank=True)
     area = models.IntegerField()
@@ -66,11 +77,12 @@ class PutOut(models.Model):
     range = models.PositiveSmallIntegerField(choices=RANGE_CHOICES, null=True)  # 공간 사용 범위
     facility = MultiSelectField(choices=FACILITY_CHOICES, null=True)  # 시설 정보
     images = models.CharField(max_length=2000, null=True, blank=True) #건물 이미지
+    remarks = models.TextField(null=True, blank=True) # 비고란
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
         db_table = "putout"
-        verbose_name_plural = "공간 내놓기"
+        verbose_name_plural = "공간 나누기"
 
     def __str__(self):
         return f' {self.address} [{self.name}]'
@@ -90,6 +102,7 @@ class LookFor(models.Model):
     deposit = models.IntegerField()
     price = models.IntegerField()
     discussion = models.PositiveSmallIntegerField(choices=DISCUSSION_CHOICES, null=True)  # 협의 가능 여부
+    remarks = models.TextField(null=True, blank=True)  # 비고란
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -114,6 +127,7 @@ class ApplySpace(models.Model):
     deposit = models.IntegerField()
     price = models.IntegerField()
     discussion = models.PositiveSmallIntegerField(choices=DISCUSSION_CHOICES, null=True)  # 협의 가능 여부
+    remarks = models.TextField(null=True, blank=True)  # 비고란
     created_at = models.DateTimeField(auto_now_add=True)
 
 
@@ -139,14 +153,8 @@ class ApplySpace(models.Model):
 #         db_table = "addresses"
 
 
-class GisBuildingService(models.Model):
-    BULD_PLOT_AR = models.FloatField()
-    BULD_BILDNG_AR = models.FloatField()
-    MEASRMT_RT = models.FloatField()
-    BTL_RT = models.FloatField()
-    STRCT_CODE = models.IntegerField()
-    MAIN_PRPOS_CODE = models.IntegerField()
-    GROUND_FLOOR_CO = models.IntegerField()
-    UNDGRND_FLOOR_CO = models.IntegerField()
-    TOT_PARKNG_CO = models.IntegerField()
+
+
+
+
 
