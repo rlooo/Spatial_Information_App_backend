@@ -35,9 +35,6 @@ urlpatterns = [
     # Example: /board/convertPNU/
     path('convertPNU/', convertPNU),
 
-# Example: /board/opendata2/
-    path('opendata2/', openAPIData2),
-
 ]
 # 이미지 URL 설정
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

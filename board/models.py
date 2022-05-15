@@ -10,7 +10,7 @@ class BldRgstService(models.Model):
     platArea = models.FloatField()  # 대지면적
     archArea = models.FloatField()  # 건축면적
     bcRat = models.FloatField() # 건폐울
-    vlRat = models.FloatField() # 용적률Q
+    vlRat = models.FloatField() # 용적률
     grndFlrCnt = models.IntegerField()  # 지상층수
     ugrndFlrCnt = models.IntegerField() # 지하층수
     mainPurpsCdNm = models.CharField(max_length=50)  # 주용도
@@ -61,9 +61,11 @@ class PutOut(models.Model):
     ]
 
     author = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
+    bldInfo = models.ForeignKey(BldRgstService, on_delete=models.CASCADE, blank=True, null=True)
     name = models.CharField(max_length=50)
     contact = models.CharField(max_length=50)
     address = models.CharField(max_length=50, null=True) # 도로명 주소
+    datailAddress = models.CharField(max_length=50, null=True) # 상세주소
     kakaoLatitude = models.CharField(max_length=50, null=True, blank=True)
     kakaoLongitude = models.CharField(max_length=50, null=True, blank=True)
     area = models.IntegerField()
