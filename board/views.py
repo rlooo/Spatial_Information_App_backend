@@ -8,8 +8,8 @@ import json
 from openpyxl import load_workbook
 from rest_framework.generics import ListAPIView
 
-from board.models import PutOut, LookFor, ApplySpace, BldRgstService
-from board.serializer import PutOutListSerializer
+from board.models import PutOut, LookFor, ApplySpace, BldRgstService, QnA, Notice
+from board.serializer import PutOutListSerializer, NoticeListSerializer
 
 import requests
 
@@ -205,7 +205,7 @@ def putout_detail(request, pk):
         'totPkngCnt': board.bldInfo.totPkngCnt, # 총주차수
     }, json_dumps_params={'ensure_ascii': False}, status=200)
 
-# 모든 게시글들을 불러오기
+# 모든 '공간 구하기' 게시글들을 불러오기
 class PutOutListView(ListAPIView):
     queryset = PutOut.objects.all()
     serializer_class = PutOutListSerializer
@@ -348,3 +348,40 @@ def openAPIData(addr):
     bldInfo.save()
 
     return bldInfo
+
+#새로운 QnA 게시물 작성하는 함수
+def new_qna(request):
+    if request.method == 'POST':
+        # uid = request.POST.get('uid')
+        title = request.POST.get('title')
+        content = request.POST.get('content')
+
+        # if Account.objects.filter(uid=uid).exists():
+        #     user = Account.objects.get(uid=uid)
+
+        new_article = QnA.objects.create(
+            # author=user,
+            title=title,
+            content=content,
+        )
+
+        new_article.save()
+
+        return HttpResponse(status=200)
+
+# 모든 공지사항 게시글들을 불러오기
+class NoticeListView(ListAPIView):
+    queryset = Notice.objects.all()
+    serializer_class = NoticeListSerializer
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(queryset, many=True)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        return HttpResponse(json.dumps(serializer.data, ensure_ascii=False, indent='\t'), status=200)

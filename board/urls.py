@@ -35,6 +35,12 @@ urlpatterns = [
     # Example: /board/convertPNU/
     path('convertPNU/', convertPNU),
 
+    # Example: /board/notice/list/
+    path('notice/list/', NoticeListView.as_view()),
+
+    # Example: /board/new_post/qna/
+    path('new_post/qna/', new_qna),
+
 ]
 # 이미지 URL 설정
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

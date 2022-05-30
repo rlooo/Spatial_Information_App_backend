@@ -1,9 +1,11 @@
 from django.contrib import admin
 
 # Register your models here.
-from board.models import PutOut, LookFor, ApplySpace, BldRgstService
+from board.models import PutOut, LookFor, ApplySpace, BldRgstService, QnA, Notice
 
 admin.site.register(PutOut)
 admin.site.register(LookFor)
 admin.site.register(ApplySpace)
 admin.site.register(BldRgstService)
+admin.site.register(QnA)
+admin.site.register(Notice)

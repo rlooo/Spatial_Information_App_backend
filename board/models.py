@@ -155,6 +155,31 @@ class ApplySpace(models.Model):
 #         db_table = "addresses"
 
 
+class QnA(models.Model):
+    author = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
+    title = models.CharField(max_length=50)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.title} '
+
+    class Meta:
+        db_table = "qna"
+        verbose_name_plural = "Q&A"
+
+class Notice(models.Model):
+    title = models.CharField(max_length=50)
+    content = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.title} '
+
+    class Meta:
+        db_table = "notice"
+        verbose_name_plural = "공지사항"
+
 
 
 
