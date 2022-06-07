@@ -11,7 +11,6 @@ def login(request):
         nickname = request.POST.get('nickname')
 
     if Account.objects.filter(uid=uid).exists():
-        user = Account.objects.get(uid=uid)
         return HttpResponse(status=200)
 
     user = Account.objects.create(

@@ -9,12 +9,15 @@ from openpyxl import load_workbook
 from rest_framework.generics import ListAPIView
 
 from board.models import PutOut, LookFor, ApplySpace, BldRgstService, QnA, Notice
-from board.serializer import PutOutListSerializer, NoticeListSerializer
+from board.serializer import PutOutListSerializer, NoticeListSerializer, QnAListSerializer
 
 import requests
 
 import PublicDataReader as pdr
 
+
+
+from user.models import Account
 
 #새로운 공간내놓기 게시물 작성하는 함수
 def new_putout(request):
@@ -46,34 +49,34 @@ def new_putout(request):
         facilities = facilities.split(',')
         facilities = [int(i) for i in facilities]
 
-        # if Account.objects.filter(uid=uid).exists():
-        #     user = Account.objects.get(uid=uid)
+        if Account.objects.filter(uid=uid).exists():
+            user = Account.objects.get(uid=uid)
 
-        new_article = PutOut.objects.create(
-            # author=user,
-            bldInfo=bldInfo,
-            name=name,
-            contact=contact,
-            address=address,
-            kakaoLatitude=kakaoLatitude,
-            kakaoLongitude=kakaoLongitude,
-            area=int(area),
-            floor=int(floor),
-            deposit=int(deposit),
-            price=int(price),
-            discussion=int(discussion),
-            client=int(client),
-            sort=int(sort),
-            count=int(count),
-            range=int(range),
-            facility=facilities,
-            images=images,
-            datailAddress=datailAddress,
-        )
+            new_article = PutOut.objects.create(
+                author=user,
+                bldInfo=bldInfo,
+                name=name,
+                contact=contact,
+                address=address,
+                kakaoLatitude=kakaoLatitude,
+                kakaoLongitude=kakaoLongitude,
+                area=int(area),
+                floor=int(floor),
+                deposit=int(deposit),
+                price=int(price),
+                discussion=int(discussion),
+                client=int(client),
+                sort=int(sort),
+                count=int(count),
+                range=int(range),
+                facility=facilities,
+                images=images,
+                datailAddress=datailAddress,
+            )
 
-        new_article.save()
+            new_article.save()
 
-        return HttpResponse(status=200)
+            return HttpResponse(status=200)
 
 #새로운 공간구하기 게시물 작성하는 함수
 def new_lookfor(request):
@@ -88,23 +91,23 @@ def new_lookfor(request):
         discussion = request.POST.get('discussion')
 
 
-        # if Account.objects.filter(uid=uid).exists():
-        #     user = Account.objects.get(uid=uid)
+        if Account.objects.filter(uid=uid).exists():
+            user = Account.objects.get(uid=uid)
 
-        new_article = LookFor.objects.create(
-            # author=user,
-            name=name,
-            contact=contact,
-            business=business,
-            area=int(area),
-            deposit=int(deposit),
-            price=int(price),
-            discussion=int(discussion),
-        )
+            new_article = LookFor.objects.create(
+                author=user,
+                name=name,
+                contact=contact,
+                business=business,
+                area=int(area),
+                deposit=int(deposit),
+                price=int(price),
+                discussion=int(discussion),
+            )
 
-        new_article.save()
+            new_article.save()
 
-        return HttpResponse(status=200)
+            return HttpResponse(status=200)
 
 # 공간 신청하기
 def applySpace(request):
@@ -119,26 +122,26 @@ def applySpace(request):
         building_id = request.POST.get('buildingId')
 
 
-        # if Account.objects.filter(uid=uid).exists():
-        #     user = Account.objects.get(uid=uid)
+        if Account.objects.filter(uid=uid).exists():
+            user = Account.objects.get(uid=uid)
 
-        if PutOut.objects.filter(id=building_id).exists():
-            building = PutOut.objects.get(id=building_id)
+            if PutOut.objects.filter(id=building_id).exists():
+                building = PutOut.objects.get(id=building_id)
 
-        applySpace = ApplySpace.objects.create(
-            # author=user,
-            building=building,
-            name=name,
-            contact=contact,
-            business=business,
-            deposit=int(deposit),
-            price=int(price),
-            discussion=int(discussion),
-        )
+            applySpace = ApplySpace.objects.create(
+                author=user,
+                building=building,
+                name=name,
+                contact=contact,
+                business=business,
+                deposit=int(deposit),
+                price=int(price),
+                discussion=int(discussion),
+            )
 
-        applySpace.save()
+            applySpace.save()
 
-        return HttpResponse(status=200)
+            return HttpResponse(status=200)
 
 # 게시글 삭제 기능
 def putout_delete(request, pk):
@@ -175,10 +178,11 @@ def putout_detail(request, pk):
     board = PutOut.objects.get(id=pk)
     return JsonResponse({
         'id': board.id,
-        'author':board.author,
+        # 'author':board.author,  이 부분 수정해야 함!!!!
         'name': board.name,
         'contact': board.contact,
         'address':board.address,
+        'detail_address':board.detailAddress,
         'kakaoLatitude':board.kakaoLatitude,
         'kakaoLongitude': board.kakaoLongitude,
         'area':board.area,
@@ -333,6 +337,30 @@ def openAPIData(addr):
 
     print(df['건축면적'].values[0])
 
+    try:
+        platArea=df['대지면적'].values[0],  # 대지면적
+        archArea=df['건축면적'].values[0],  # 건축면적
+        bcRat=df['건폐율'].values[0],  # 건폐울
+        vlRat=df['용적률'].values[0],  # 용적률
+        grndFlrCnt=df2['지상층수'].values[0],  # 지상층수
+        ugrndFlrCnt=df2['지하층수'].values[0],  # 지하층수
+        mainPurpsCdNm=df['주용도코드명'].values[0],  # 주용도
+        etcPurps=df['기타용도'].values[0],  # 기타용도
+        strctCdNm=df2['구조코드명'].values[0],  # 구조
+        totPkngCnt=df['총주차수'].values[0],  # 총주차수
+    except AttributeError as e:
+        platArea = None,
+        archArea = None,
+        bcRat = None,
+        vlRat = None,
+        grndFlrCnt = None,
+        ugrndFlrCnt = None,
+        mainPurpsCdNm = None,
+        etcPurps = None,
+        strctCdNm = None,
+        totPkngCnt = None
+
+
     bldInfo = BldRgstService.objects.create(
         platArea=df['대지면적'].values[0],  # 대지면적
         archArea=df['건축면적'].values[0],  # 건축면적
@@ -352,15 +380,15 @@ def openAPIData(addr):
 #새로운 QnA 게시물 작성하는 함수
 def new_qna(request):
     if request.method == 'POST':
-        # uid = request.POST.get('uid')
+        uid = request.POST.get('uid')
         title = request.POST.get('title')
         content = request.POST.get('content')
 
-        # if Account.objects.filter(uid=uid).exists():
-        #     user = Account.objects.get(uid=uid)
+        if Account.objects.filter(uid=uid).exists():
+            user = Account.objects.get(uid=uid)
 
         new_article = QnA.objects.create(
-            # author=user,
+            author=user,
             title=title,
             content=content,
         )
@@ -369,10 +397,29 @@ def new_qna(request):
 
         return HttpResponse(status=200)
 
+
 # 모든 공지사항 게시글들을 불러오기
 class NoticeListView(ListAPIView):
     queryset = Notice.objects.all()
     serializer_class = NoticeListSerializer
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer_class = self.get_serializer_class()
+        serializer = serializer_class(queryset, many=True)
+
+        page = self.paginate_queryset(queryset)
+        if page is not None:
+            serializer = self.get_serializer(page, many=True)
+            return self.get_paginated_response(serializer.data)
+
+        return HttpResponse(json.dumps(serializer.data, ensure_ascii=False, indent='\t'), status=200)
+
+
+# 모든 Q&A 게시글들을 불러오기
+class QnAListView(ListAPIView):
+    queryset = QnA.objects.all()
+    serializer_class = QnAListSerializer
 
     def list(self, request):
         queryset = self.get_queryset()

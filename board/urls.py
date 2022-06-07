@@ -38,6 +38,9 @@ urlpatterns = [
     # Example: /board/notice/list/
     path('notice/list/', NoticeListView.as_view()),
 
+    # Example: /board/qna/list/
+    path('qna/list/', QnAListView.as_view()),
+
     # Example: /board/new_post/qna/
     path('new_post/qna/', new_qna),
 

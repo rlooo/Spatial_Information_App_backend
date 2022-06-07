@@ -65,7 +65,7 @@ class PutOut(models.Model):
     name = models.CharField(max_length=50)
     contact = models.CharField(max_length=50)
     address = models.CharField(max_length=50, null=True) # 도로명 주소
-    datailAddress = models.CharField(max_length=50, null=True) # 상세주소
+    detailAddress = models.CharField(max_length=50, null=True) # 상세주소
     kakaoLatitude = models.CharField(max_length=50, null=True, blank=True)
     kakaoLongitude = models.CharField(max_length=50, null=True, blank=True)
     area = models.IntegerField()
@@ -159,6 +159,7 @@ class QnA(models.Model):
     author = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
     title = models.CharField(max_length=50)
     content = models.TextField()
+    answer = models.TextField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
