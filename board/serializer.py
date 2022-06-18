@@ -7,7 +7,7 @@ from board.models import PutOut, QnA, Notice
 class PutOutListSerializer(serializers.ModelSerializer):
     class Meta:
         model = PutOut
-        fields = ('id', 'address', 'kakaoLatitude', 'kakaoLongitude', 'area', 'floor', 'deposit', 'price', 'discussion', 'range', 'address', 'images', )
+        fields = ('id', 'address', 'kakaoLatitude', 'kakaoLongitude', 'area', 'floor', 'deposit', 'price', 'discussion', 'range', 'address', 'images', 'detailAddress', )
 
 class NoticeListSerializer(serializers.ModelSerializer):
     class Meta:

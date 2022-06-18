@@ -11,6 +11,9 @@ urlpatterns = [
     # Example: /board/new_post/put_out/
     path('new_post/put_out/', new_putout, name='put_out'),
 
+    # Example: /board/new_post/put_out/
+    path('new_post/put_out2/', new_putout2, name='put_out'),
+
     # Example: /board/new_post/look_for/
     path('new_post/look_for/', new_lookfor, name='look_for'),
 

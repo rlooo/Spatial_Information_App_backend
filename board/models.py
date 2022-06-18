@@ -13,8 +13,8 @@ class BldRgstService(models.Model):
     vlRat = models.FloatField() # 용적률
     grndFlrCnt = models.IntegerField()  # 지상층수
     ugrndFlrCnt = models.IntegerField() # 지하층수
-    mainPurpsCdNm = models.CharField(max_length=50)  # 주용도
-    etcPurps = models.CharField(max_length=50, null=True) # 기타용도
+    mainPurpsCdNm = models.CharField(max_length=100)  # 주용도
+    etcPurps = models.CharField(max_length=500, null=True) # 기타용도
     strctCdNm = models.CharField(max_length=50) # 구조
     totPkngCnt = models.IntegerField()   # 총주차수
 
@@ -65,7 +65,7 @@ class PutOut(models.Model):
     name = models.CharField(max_length=50)
     contact = models.CharField(max_length=50)
     address = models.CharField(max_length=50, null=True) # 도로명 주소
-    detailAddress = models.CharField(max_length=50, null=True) # 상세주소
+    detailAddress = models.CharField(max_length=50) # 상세주소
     kakaoLatitude = models.CharField(max_length=50, null=True, blank=True)
     kakaoLongitude = models.CharField(max_length=50, null=True, blank=True)
     area = models.IntegerField()
@@ -78,7 +78,6 @@ class PutOut(models.Model):
     count = models.PositiveSmallIntegerField(choices=COUNT_CHOICES, null=True)  # 공간 개수
     range = models.PositiveSmallIntegerField(choices=RANGE_CHOICES, null=True)  # 공간 사용 범위
     facility = MultiSelectField(choices=FACILITY_CHOICES, null=True)  # 시설 정보
-    images = models.CharField(max_length=2000, null=True, blank=True) #건물 이미지
     remarks = models.TextField(null=True, blank=True) # 비고란
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -88,6 +87,11 @@ class PutOut(models.Model):
 
     def __str__(self):
         return f' {self.address} [{self.name}]'
+
+class BuildingImage(models.Model):
+    putout = models.ForeignKey(PutOut, on_delete=models.CASCADE)
+    image = models.ImageField(default='https://png.pngtree.com/element_our/20200610/ourlarge/pngtree-character-default-avatar-image_2237203.jpg', upload_to='media/putout',
+                              blank=True, null=True)
 
 
 class LookFor(models.Model):
