@@ -90,8 +90,7 @@ class PutOut(models.Model):
 
 class BuildingImage(models.Model):
     putout = models.ForeignKey(PutOut, on_delete=models.CASCADE)
-    image = models.ImageField(default='https://png.pngtree.com/element_our/20200610/ourlarge/pngtree-character-default-avatar-image_2237203.jpg', upload_to='media/putout',
-                              blank=True, null=True)
+    image = models.ImageField(upload_to='putout', blank=True, null=True)
 
 
 class LookFor(models.Model):
@@ -144,21 +143,6 @@ class ApplySpace(models.Model):
         db_table = "applySpace"
         verbose_name_plural = "공간 신청하기"
 
-
-
-
-# class Address(models.Model):
-#     postCode = models.CharField(max_length=50)
-#     address = models.CharField(max_length=50)
-#     latitude = models.CharField(max_length=50)
-#     longitude = models.CharField(max_length=50)
-#     kakaoLatitude = models.CharField(max_length=50)
-#     kakaoLongitude = models.CharField(max_length=50)
-#
-#     class Meta:
-#         db_table = "addresses"
-
-
 class QnA(models.Model):
     author = models.ForeignKey(Account, on_delete=models.CASCADE, blank=True, null=True)
     title = models.CharField(max_length=50)
@@ -176,6 +160,7 @@ class QnA(models.Model):
 class Notice(models.Model):
     title = models.CharField(max_length=50)
     content = models.TextField()
+    link = models.TextField(null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

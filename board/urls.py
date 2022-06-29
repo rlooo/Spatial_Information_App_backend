@@ -47,6 +47,9 @@ urlpatterns = [
     # Example: /board/new_post/qna/
     path('new_post/qna/', new_qna),
 
+    # Example: /board/image/download/1
+    path('iamge/download/<int:putout_id>/', ImageDownloadView.as_view(), name = "image_download"),
+
 ]
 # 이미지 URL 설정
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
