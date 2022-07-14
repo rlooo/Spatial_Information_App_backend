@@ -229,6 +229,17 @@ def putout_delete(request, pk):
 def putout_detail(request, pk):
     # 게시글(Post) 중 pk(primary_key)를 이용해 하나의 게시글(post)를 검색
     board = PutOut.objects.get(id=pk)
+
+    if BuildingImage.objects.filter(putout=board).exists():
+        objects = BuildingImage.objects.filter(putout=board)
+        print(objects)
+        images=[]
+        for _object in objects:
+            print(_object.image.url)
+            # images.insert(_image.attached)
+            # print(_image.attached.path)
+
+
     return JsonResponse({
         'id': board.id,
         'name': board.name,
