@@ -236,9 +236,6 @@ def putout_detail(request, pk):
         images=[]
         for _object in objects:
             print(_object.image.url)
-            # images.insert(_image.attached)
-            # print(_image.attached.path)
-
 
     return JsonResponse({
         'id': board.id,

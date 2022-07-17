@@ -15,6 +15,8 @@ class NoticeListSerializer(serializers.ModelSerializer):
         fields = ('id', 'title', 'content', 'link', 'created_at')
 
 class QnAListSerializer(serializers.ModelSerializer):
+    author_name = serializers.ReadOnlyField(source='author.nickname')
+    print(author_name)
     class Meta:
         model = QnA
-        fields = ('id', 'title', 'content', 'created_at', 'answer')
+        fields = ('id', 'title', 'content', 'created_at', 'answer', 'author_name')
