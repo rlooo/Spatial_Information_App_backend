@@ -7,16 +7,16 @@ from multiselectfield import MultiSelectField
 from user.models import Account
 
 class BldRgstService(models.Model):
-    platArea = models.FloatField()  # 대지면적
-    archArea = models.FloatField()  # 건축면적
-    bcRat = models.FloatField() # 건폐울
-    vlRat = models.FloatField() # 용적률
-    grndFlrCnt = models.IntegerField()  # 지상층수
-    ugrndFlrCnt = models.IntegerField() # 지하층수
-    mainPurpsCdNm = models.CharField(max_length=100)  # 주용도
+    platArea = models.FloatField(null=True)  # 대지면적
+    archArea = models.FloatField(null=True)  # 건축면적
+    bcRat = models.FloatField(null=True) # 건폐울
+    vlRat = models.FloatField(null=True) # 용적률
+    grndFlrCnt = models.IntegerField(null=True)  # 지상층수
+    ugrndFlrCnt = models.IntegerField(null=True) # 지하층수
+    mainPurpsCdNm = models.CharField(max_length=100,null=True)  # 주용도
     etcPurps = models.CharField(max_length=500, null=True) # 기타용도
-    strctCdNm = models.CharField(max_length=50) # 구조
-    totPkngCnt = models.IntegerField()   # 총주차수
+    strctCdNm = models.CharField(max_length=50,null=True) # 구조
+    totPkngCnt = models.IntegerField(null=True)   # 총주차수
 
 class PutOut(models.Model):
     DISCUSSION_CHOICES = [

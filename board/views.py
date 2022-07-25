@@ -231,11 +231,10 @@ def putout_detail(request, pk):
     board = PutOut.objects.get(id=pk)
 
     if BuildingImage.objects.filter(putout=board).exists():
+        imgList = []
         objects = BuildingImage.objects.filter(putout=board)
-        print(objects)
-        images=[]
         for _object in objects:
-            print(_object.image.url)
+            imgList.append(_object.image.url)
 
     return JsonResponse({
         'id': board.id,
@@ -254,6 +253,7 @@ def putout_detail(request, pk):
         'sort':board.get_sort_display(),
         'count':board.get_count_display(),
         'range':board.get_range_display(),
+        'imgList': imgList,
         'facility':board.get_facility_display(),
         'created_at':board.created_at,
 
@@ -346,46 +346,80 @@ def openAPIData(addr):
     sigungu = address[1]
     dong = address[2]
     daesi = str(1)  # 필지구분(일반:1)
-    bun = address[3].split('-')[0].zfill(4)  # 본번
-    ji = address[3].split('-')[1].zfill(4)  # 부번
+    try:
+        bun = address[3].split('-')[0].zfill(4)  # 본번
+        ji = address[3].split('-')[1].zfill(4)  # 부번
 
-    # 4. 지역코드(시군구코드) 검색하기
-    code = pdr.code_list()
-    print(code.loc[(code['시군구명'].str.contains(sigungu, na=False)) & (code['읍면동명'].str.contains(dong, na=False))])
-    result = code.loc[(code['시군구명'].str.contains(sigungu, na=False)) & (code['읍면동명'].str.contains(dong, na=False))]
-    sigunguCd = str(result['시군구코드'].values[0])
-    dongCd = str(result['법정동코드'].values[0])[5:]
-    print(sigunguCd) # 시군구코드(5)
-    print(dongCd) # 읍면동코드(5)
+        # 4. 지역코드(시군구코드) 검색하기
+        code = pdr.code_list()
+        print(code.loc[(code['시군구명'].str.contains(sigungu, na=False)) & (code['읍면동명'].str.contains(dong, na=False))])
+        result = code.loc[(code['시군구명'].str.contains(sigungu, na=False)) & (code['읍면동명'].str.contains(dong, na=False))]
+        sigunguCd = str(result['시군구코드'].values[0])
+        dongCd = str(result['법정동코드'].values[0])[5:]
+        print(sigunguCd) # 시군구코드(5)
+        print(dongCd) # 읍면동코드(5)
 
-    # 5. 건축물대장정보 오퍼레이션별 데이터 조회
-    # category = "총괄표제부"  # 건축물대장 종류 (ex. 표제부, 총괄표제부, 전유부 등)
-    #
-    # df = bd.read_data(category=category, sigunguCd=sigunguCd, bjdongCd=dongCd, bun=bun, ji=ji)
-    # df.head()
-    # print(df.head())
+        # 5. 건축물대장정보 오퍼레이션별 데이터 조회
+        # category = "총괄표제부"  # 건축물대장 종류 (ex. 표제부, 총괄표제부, 전유부 등)
+        #
+        # df = bd.read_data(category=category, sigunguCd=sigunguCd, bjdongCd=dongCd, bun=bun, ji=ji)
+        # df.head()
+        # print(df.head())
 
-    category2 = "표제부"  # 건축물대장 종류
+        category2 = "표제부"  # 건축물대장 종류
 
-    df2 = bd.read_data(category=category2, sigunguCd=sigunguCd, bjdongCd=dongCd, bun=bun, ji=ji)
-    print(df2.head())
+        df2 = bd.read_data(category=category2, sigunguCd=sigunguCd, bjdongCd=dongCd, bun=bun, ji=ji)
+        print(df2.head())
 
-    bldInfo = BldRgstService.objects.create(
-        platArea=df2['대지면적'].values[0],  # 대지면적
-        archArea=df2['건축면적'].values[0],  # 건축면적
-        bcRat=df2['건폐율'].values[0],  # 건폐울
-        vlRat=df2['용적률'].values[0],  # 용적률
-        grndFlrCnt=df2['지상층수'].values[0],  # 지상층수
-        ugrndFlrCnt=df2['지하층수'].values[0],  # 지하층수
-        mainPurpsCdNm=df2['주용도코드명'].values[0],  # 주용도
-        etcPurps=df2['기타용도'].values[0],  # 기타용도
-        strctCdNm=df2['구조코드명'].values[0],  # 구조
-        totPkngCnt=(df2['옥내기계식대수'].values[0] + df2['옥외기계식대수'].values[0] + df2['옥내자주식대수'].values[0] + df2['옥외자주식대수'].values[0])   # 총주차수
-    )
 
-    bldInfo.save()
+        try:
+            bldInfo = BldRgstService.objects.create(
+                platArea=df2['대지면적'].values[0],  # 대지면적
+                archArea=df2['건축면적'].values[0],  # 건축면적
+                bcRat=df2['건폐율'].values[0],  # 건폐울
+                vlRat=df2['용적률'].values[0],  # 용적률
+                grndFlrCnt=df2['지상층수'].values[0],  # 지상층수
+                ugrndFlrCnt=df2['지하층수'].values[0],  # 지하층수
+                mainPurpsCdNm=df2['주용도코드명'].values[0],  # 주용도
+                etcPurps=df2['기타용도'].values[0],  # 기타용도
+                strctCdNm=df2['구조코드명'].values[0],  # 구조
+                totPkngCnt=(df2['옥내기계식대수'].values[0] + df2['옥외기계식대수'].values[0] + df2['옥내자주식대수'].values[0] + df2['옥외자주식대수'].values[0])   # 총주차수
+            )
+        except AttributeError as e:
+            bldInfo = BldRgstService.objects.create(
+                platArea = None,  # 대지면적
+                archArea = None,  # 건축면적
+                bcRat = None,  # 건폐울
+                vlRat = None,  # 용적률
+                grndFlrCnt = None,  # 지상층수
+                ugrndFlrCnt = None,  # 지하층수
+                mainPurpsCdNm = None,  # 주용도
+                etcPurps = None,  # 기타용도
+                strctCdNm = None,  # 구조
+                totPkngCnt = None  # 총주차수
+            )
 
-    return bldInfo
+        bldInfo.save()
+
+        return bldInfo
+    except IndexError as e:
+        bldInfo = BldRgstService.objects.create(
+            platArea = None,  # 대지면적
+            archArea = None,  # 건축면적
+            bcRat = None,  # 건폐울
+            vlRat = None,  # 용적률
+            grndFlrCnt = None,  # 지상층수
+            ugrndFlrCnt = None,  # 지하층수
+            mainPurpsCdNm = None,  # 주용도
+            etcPurps = None,  # 기타용도
+            strctCdNm = None,  # 구조
+            totPkngCnt = None  # 총주차수
+        )
+
+        bldInfo.save()
+
+        return bldInfo
+
 
 #새로운 QnA 게시물 작성하는 함수
 def new_qna(request):
