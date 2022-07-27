@@ -80,6 +80,7 @@ class PutOut(models.Model):
     facility = MultiSelectField(choices=FACILITY_CHOICES, null=True)  # 시설 정보
     remarks = models.TextField(null=True, blank=True) # 비고란
     created_at = models.DateTimeField(auto_now_add=True)
+    thumbnail = models.CharField(max_length=500, null=True, blank=True)
 
     class Meta:
         db_table = "putout"

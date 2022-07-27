@@ -22,69 +22,6 @@ from django.core.files.storage import FileSystemStorage
 
 
 from user.models import Account
-
-#새로운 공간내놓기 게시물 작성하는 함수
-def new_putout(request):
-    if request.method == 'POST':
-        uid = request.POST.get('uid')
-        name = request.POST.get('name')
-        contact = request.POST.get('contact')
-        area = request.POST.get('area')
-        floor = request.POST.get('floor')
-        deposit = request.POST.get('deposit')
-        price = request.POST.get('price')
-        discussion = request.POST.get('discussion')
-        client = request.POST.get('client')
-        sort = request.POST.get('sort')
-        count = request.POST.get('count')
-        range = request.POST.get('range')
-        facilities = request.POST.get('facilities')
-        # images = request.POST.get('images')
-        remarks = request.POST.get('remarks')
-
-        address = request.POST.get('address')
-        detailAddress = request.POST.get('detailAddress')
-        kakaoLatitude = request.POST.get('kakaoLatitude')
-        kakaoLongitude = request.POST.get('kakaoLongitude')
-
-        # 도로명 주소를 지번 주소로 변환해서 건축물 대장 불러오기
-        bldInfo = openAPIData(address)
-
-        facilities = facilities.replace('[','').replace(']','')
-        facilities = facilities.split(',')
-        facilities = [int(i) for i in facilities]
-
-        if Account.objects.filter(uid=uid).exists():
-            user = Account.objects.get(uid=uid)
-
-            new_article = PutOut.objects.create(
-                author=user,
-                bldInfo=bldInfo,
-                name=name,
-                contact=contact,
-                address=address,
-                kakaoLatitude=kakaoLatitude,
-                kakaoLongitude=kakaoLongitude,
-                area=int(area),
-                floor=int(floor),
-                deposit=int(deposit),
-                price=int(price),
-                discussion=int(discussion),
-                client=int(client),
-                sort=int(sort),
-                count=int(count),
-                range=int(range),
-                facility=facilities,
-                # images=images,
-                detailAddress=detailAddress,
-                remarks=remarks,
-            )
-
-            new_article.save()
-
-            return HttpResponse(status=200)
-        return HttpResponse(status=401) # 클라이언트가 권한이 없기 때문에 작업을 진행할 수 없다.
-
 #새로운 공간내놓기 게시물 작성하는 함수2
 def new_putout2(request):
     if request.method == 'POST':
@@ -142,11 +79,11 @@ def new_putout2(request):
 
             # 이미지 파일 저장
             image_set = request.FILES.getlist('file')
-            print(image_set)
             for image_data in image_set:
-                print(image_data)
                 image = BuildingImage.objects.create(putout=new_article, image=image_data)
                 image.save()
+
+                new_article.thumbnail = image.image.url
 
             new_article.save()
 
@@ -254,6 +191,7 @@ def putout_detail(request, pk):
         'count':board.get_count_display(),
         'range':board.get_range_display(),
         'imgList': imgList,
+        'thumbnail': imgList[0],
         'facility':board.get_facility_display(),
         'created_at':board.created_at,
 
@@ -326,6 +264,7 @@ def convertPNU(request):
     print(PNU)
 
 def openAPIData(addr):
+    print(pdr.__version__)
     serviceKey = "KYOIVq7wl4Potw9VACNS429a%2FnGO%2BxzFFa%2BXyKs5I6YNm85eUF4N9AjAhf7tp1wVx0bvB6axbFPyBKUJUo4mfw%3D%3D"
 
     # 3. 국토교통부 건축물대장정보 서비스 OpenAPI 세션 정의하기
@@ -346,63 +285,52 @@ def openAPIData(addr):
     sigungu = address[1]
     dong = address[2]
     daesi = str(1)  # 필지구분(일반:1)
+
+    bun = address[3].split('-')[0].zfill(4)  # 본번
     try:
-        bun = address[3].split('-')[0].zfill(4)  # 본번
         ji = address[3].split('-')[1].zfill(4)  # 부번
-
-        # 4. 지역코드(시군구코드) 검색하기
-        code = pdr.code_list()
-        print(code.loc[(code['시군구명'].str.contains(sigungu, na=False)) & (code['읍면동명'].str.contains(dong, na=False))])
-        result = code.loc[(code['시군구명'].str.contains(sigungu, na=False)) & (code['읍면동명'].str.contains(dong, na=False))]
-        sigunguCd = str(result['시군구코드'].values[0])
-        dongCd = str(result['법정동코드'].values[0])[5:]
-        print(sigunguCd) # 시군구코드(5)
-        print(dongCd) # 읍면동코드(5)
-
-        # 5. 건축물대장정보 오퍼레이션별 데이터 조회
-        # category = "총괄표제부"  # 건축물대장 종류 (ex. 표제부, 총괄표제부, 전유부 등)
-        #
-        # df = bd.read_data(category=category, sigunguCd=sigunguCd, bjdongCd=dongCd, bun=bun, ji=ji)
-        # df.head()
-        # print(df.head())
-
-        category2 = "표제부"  # 건축물대장 종류
-
-        df2 = bd.read_data(category=category2, sigunguCd=sigunguCd, bjdongCd=dongCd, bun=bun, ji=ji)
-        print(df2.head())
-
-
-        try:
-            bldInfo = BldRgstService.objects.create(
-                platArea=df2['대지면적'].values[0],  # 대지면적
-                archArea=df2['건축면적'].values[0],  # 건축면적
-                bcRat=df2['건폐율'].values[0],  # 건폐울
-                vlRat=df2['용적률'].values[0],  # 용적률
-                grndFlrCnt=df2['지상층수'].values[0],  # 지상층수
-                ugrndFlrCnt=df2['지하층수'].values[0],  # 지하층수
-                mainPurpsCdNm=df2['주용도코드명'].values[0],  # 주용도
-                etcPurps=df2['기타용도'].values[0],  # 기타용도
-                strctCdNm=df2['구조코드명'].values[0],  # 구조
-                totPkngCnt=(df2['옥내기계식대수'].values[0] + df2['옥외기계식대수'].values[0] + df2['옥내자주식대수'].values[0] + df2['옥외자주식대수'].values[0])   # 총주차수
-            )
-        except AttributeError as e:
-            bldInfo = BldRgstService.objects.create(
-                platArea = None,  # 대지면적
-                archArea = None,  # 건축면적
-                bcRat = None,  # 건폐울
-                vlRat = None,  # 용적률
-                grndFlrCnt = None,  # 지상층수
-                ugrndFlrCnt = None,  # 지하층수
-                mainPurpsCdNm = None,  # 주용도
-                etcPurps = None,  # 기타용도
-                strctCdNm = None,  # 구조
-                totPkngCnt = None  # 총주차수
-            )
-
-        bldInfo.save()
-
-        return bldInfo
     except IndexError as e:
+        ji = "0000"
+        print(e)
+
+    print(bun)
+    print(ji)
+    # 4. 지역코드(시군구코드) 검색하기
+    # code = pdr.code_list()
+    code = pdr.code_bdong()
+    print(code.loc[(code['시군구명'].str.contains(sigungu, na=False)) & (code['읍면동명'].str.contains(dong, na=False))])
+    result = code.loc[(code['시군구명'].str.contains(sigungu, na=False)) & (code['읍면동명'].str.contains(dong, na=False))]
+    sigunguCd = str(result['시군구코드'].values[0])
+    dongCd = str(result['법정동코드'].values[0])[5:]
+    print(sigunguCd) # 시군구코드(5)
+    print(dongCd) # 읍면동코드(5)
+
+    # 5. 건축물대장정보 오퍼레이션별 데이터 조회
+    # category = "총괄표제부"  # 건축물대장 종류 (ex. 표제부, 총괄표제부, 전유부 등)
+    #
+    # df = bd.read_data(category=category, sigunguCd=sigunguCd, bjdongCd=dongCd, bun=bun, ji=ji)
+    # df.head()
+    # print(df.head())
+
+    category2 = "표제부"  # 건축물대장 종류
+
+    df2 = bd.read_data(category=category2, sigunguCd=sigunguCd, bjdongCd=dongCd, bun=bun, ji=ji)
+    print(df2.head())
+
+    try:
+        bldInfo = BldRgstService.objects.create(
+            platArea=df2['대지면적'].values[0],  # 대지면적
+            archArea=df2['건축면적'].values[0],  # 건축면적
+            bcRat=df2['건폐율'].values[0],  # 건폐울
+            vlRat=df2['용적률'].values[0],  # 용적률
+            grndFlrCnt=df2['지상층수'].values[0],  # 지상층수
+            ugrndFlrCnt=df2['지하층수'].values[0],  # 지하층수
+            mainPurpsCdNm=df2['주용도코드명'].values[0],  # 주용도
+            etcPurps=df2['기타용도'].values[0],  # 기타용도
+            strctCdNm=df2['구조코드명'].values[0],  # 구조
+            totPkngCnt=(df2['옥내기계식대수'].values[0] + df2['옥외기계식대수'].values[0] + df2['옥내자주식대수'].values[0] + df2['옥외자주식대수'].values[0])   # 총주차수
+        )
+    except AttributeError as e:
         bldInfo = BldRgstService.objects.create(
             platArea = None,  # 대지면적
             archArea = None,  # 건축면적
@@ -415,11 +343,10 @@ def openAPIData(addr):
             strctCdNm = None,  # 구조
             totPkngCnt = None  # 총주차수
         )
-
+        print(e)
+    finally:
         bldInfo.save()
-
         return bldInfo
-
 
 #새로운 QnA 게시물 작성하는 함수
 def new_qna(request):
